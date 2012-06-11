@@ -7,6 +7,17 @@
 	<header>	
 	<h1>Function JS Synth Spike</h1>
 	</header>
-	<input type="button" value="play" />
+	<input type="button" value="play" id="play" />
+<script>
+(function() {
+	
+	var playButton = document.getElementById("play");
+
+	playButton.addEventListener("click", function() {
+		alert("play");
+	});
+
+})();
+</script>
 </body>
 </html>
