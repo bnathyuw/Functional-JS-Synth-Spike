@@ -13,11 +13,14 @@
 	
 	var playButton = document.getElementById("play"),
 		makeTonePlayer = function(){
-			alert("play");
+			return function () {
+				alert("play");
+			};
 		};
 
 	playButton.addEventListener("click", function() {
-		makeTonePlayer();
+		var tonePlayer = makeTonePlayer();
+		tonePlayer();
 	});
 
 })();
