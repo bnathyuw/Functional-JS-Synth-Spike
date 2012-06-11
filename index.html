@@ -12,15 +12,36 @@
 (function() {
 	
 	var playButton = document.getElementById("play"),
-		makeTonePlayer = function(){
+		makeTonePlayer = function () {
+			var context = new webkitAudioContext(),
+				node = context.createJavaScriptNode(2048, 0, 1),
+				index = 0,
+				next = function () {
+					var returnValue = Math.sin(2 * Math.PI * index);
+					index = index + 440 / context.sampleRate;
+					return returnValue;
+				};
+
+			node.onaudioprocess = function (e) {
+				var data = e.outputBuffer.getChannelData(0),
+					i;
+				for (i = 0; i < data.length; i = i + 1) {
+					data[i] = next();
+				}
+			};
+
 			return function () {
-				alert("play");
+				node.connect(context.destination);
+				return function () {
+					node.disconnect ();
+				}
 			};
 		};
 
 	playButton.addEventListener("click", function() {
-		var tonePlayer = makeTonePlayer();
-		tonePlayer();
+		var tonePlayer = makeTonePlayer(),
+			stop = tonePlayer();
+		setTimeout(stop, 2000);
 	});
 
 })();
