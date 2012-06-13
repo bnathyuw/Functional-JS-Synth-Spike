@@ -16,19 +16,26 @@
 			var context = new webkitAudioContext(),
 				node = context.createJavaScriptNode(2048, 0, 1),
 				index = 0,
+				calculateSineValue = function (index) {
+					return Math.sin(2 * Math.PI * index);
+				},
+				incrementIndex = function (index, frequency) {
+					return index + frequency / context.sampleRate;
+				},
 				next = function () {
-					var returnValue = Math.sin(2 * Math.PI * index);
-					index = index + 440 / context.sampleRate;
+					var returnValue = calculateSineValue(index);
+					index = incrementIndex(index, 440);
 					return returnValue;
+				},
+				fillChannelData = function (e) {
+					var data = e.outputBuffer.getChannelData(0),
+						i;
+					for (i = 0; i < data.length; i = i + 1) {
+						data[i] = next();
+					}
 				};
 
-			node.onaudioprocess = function (e) {
-				var data = e.outputBuffer.getChannelData(0),
-					i;
-				for (i = 0; i < data.length; i = i + 1) {
-					data[i] = next();
-				}
-			};
+			node.onaudioprocess = fillChannelData;
 
 			return function () {
 				node.connect(context.destination);
