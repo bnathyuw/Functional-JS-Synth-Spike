@@ -10,18 +10,18 @@
 	<input type="button" value="play" id="play" />
 <script>
 (function() {
-	
-	var playButton = document.getElementById("play"),
+
+	var context = new webkitAudioContext(),
+		calculateSineValue = function (index) {
+			return Math.sin(2 * Math.PI * index);
+		},
+		incrementIndex = function (index, frequency) {
+			return index + frequency / context.sampleRate;
+		},
+		playButton = document.getElementById("play"),
 		makeTonePlayer = function () {
-			var context = new webkitAudioContext(),
-				node = context.createJavaScriptNode(2048, 0, 2),
+			var node = context.createJavaScriptNode(2048, 0, 2),
 				index = 0,
-				calculateSineValue = function (index) {
-					return Math.sin(2 * Math.PI * index);
-				},
-				incrementIndex = function (index, frequency) {
-					return index + frequency / context.sampleRate;
-				},
 				next = function () {
 					var returnValue = calculateSineValue(index);
 					index = incrementIndex(index, 440);
