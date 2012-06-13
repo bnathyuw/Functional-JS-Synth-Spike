@@ -14,7 +14,7 @@
 	var playButton = document.getElementById("play"),
 		makeTonePlayer = function () {
 			var context = new webkitAudioContext(),
-				node = context.createJavaScriptNode(2048, 0, 1),
+				node = context.createJavaScriptNode(2048, 0, 2),
 				index = 0,
 				calculateSineValue = function (index) {
 					return Math.sin(2 * Math.PI * index);
@@ -28,10 +28,14 @@
 					return returnValue;
 				},
 				fillChannelData = function (e) {
-					var data = e.outputBuffer.getChannelData(0),
-						i;
-					for (i = 0; i < data.length; i = i + 1) {
-						data[i] = next();
+					var leftChannel = e.outputBuffer.getChannelData(0),
+						rightChannel = e.outputBuffer.getChannelData(1),
+						i,
+						nextValue;
+					for (i = 0; i < leftChannel.length; i = i + 1) {
+						nextValue = next();
+						leftChannel[i] = nextValue;
+						rightChannel[i] = nextValue;
 					}
 				},
 				play = function () {
