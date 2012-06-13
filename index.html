@@ -40,25 +40,25 @@
 			};
 		},
 		playButton = document.getElementById("play"),
-		makeMakeTone = function (waveFunction, frequency) {
-			return function () {
-				var node = context.createJavaScriptNode(2048, 0, 2),
-					next = makeNext(waveFunction, frequency),
-					fillChannelData = makeFillChannelData(next),
-					play = function () {
-						node.connect(context.destination);
-						return stop;
-					},
-					stop = function () {
-						node.disconnect();
-					};
+		makeTone = function (waveFunction, frequency) {
+			var node = context.createJavaScriptNode(2048, 0, 2),
+				next = makeNext(waveFunction, frequency),
+				fillChannelData = makeFillChannelData(next),
+				play = function () {
+					node.connect(context.destination);
+					return stop;
+				},
+				stop = function () {
+					node.disconnect();
+				};
 
-				node.onaudioprocess = fillChannelData;
+			node.onaudioprocess = fillChannelData;
 
-				return play;
-			};
+			return play;
 		},
-		makeSineTone = makeMakeTone(getSine, 440);
+		makeSineTone = function () {
+			return makeTone(getSine, 440);
+		};
 
 	playButton.addEventListener("click", function() {
 		var tonePlayer = makeSineTone(),
