@@ -33,16 +33,18 @@
 					for (i = 0; i < data.length; i = i + 1) {
 						data[i] = next();
 					}
+				},
+				play = function () {
+					node.connect(context.destination);
+					return stop;
+				},
+				stop = function () {
+					node.disconnect();
 				};
 
 			node.onaudioprocess = fillChannelData;
 
-			return function () {
-				node.connect(context.destination);
-				return function () {
-					node.disconnect ();
-				}
-			};
+			return play;
 		};
 
 	playButton.addEventListener("click", function() {
