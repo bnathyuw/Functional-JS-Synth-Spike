@@ -21,7 +21,7 @@
 				return returnValue;
 			};
 		})(),
-		createJavaScriptNode = function (next) {
+		createJavaScriptNode = function (numberOfInputs, numberOfOutputs, next) {
 			var node = context.createJavaScriptNode(2048, 0, 2);
 			node.onaudioprocess = function (e) {
 				var channel = e.outputBuffer.getChannelData(0),
@@ -33,7 +33,7 @@
 			return node;
 		},
 		createSineNode = function () {
-			return createJavaScriptNode(generateSine);
+			return createJavaScriptNode(0, 2, generateSine);
 		};
 
 	playButton.addEventListener("click", function() {
