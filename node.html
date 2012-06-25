@@ -13,7 +13,7 @@
 
 	var context = new webkitAudioContext(),
 		playButton = document.getElementById("play"),
-		generateSine = function (inputs, index) {
+		generateSine = function (index, inputs) {
 			var returnValue = Math.sin(2 * Math.PI * index * 440 / context.sampleRate);
 			return [returnValue];
 		},
@@ -30,7 +30,7 @@
 					for (channel = 0; channel < numberOfInputs; channel = channel + 1) {
 						inputs[channel] = e.inputBuffer.getChannelData(channel)[bit];
 					}
-					outputs = next(inputs, index);
+					outputs = next(index, inputs);
 					for (channel = 0; channel < numberOfOutputs; channel = channel + 1) {
 						e.outputBuffer.getChannelData(channel)[bit] = outputs[channel];
 					}
