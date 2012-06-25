@@ -13,21 +13,19 @@
 
 	var context = new webkitAudioContext(),
 		playButton = document.getElementById("play"),
-		index = 0,
-		next = function () {
-			var returnValue = Math.sin(2 * Math.PI * index);
-			index = index + 440 / context.sampleRate;
-			return returnValue;
-		},
+		next = (function () {
+			var index = 0;
+			return function () {
+				var returnValue = Math.sin(2 * Math.PI * index);
+				index = index + 440 / context.sampleRate;
+				return returnValue;
+			};
+		})(),
 		fillChannelData = function (e) {
-			var leftChannel = e.outputBuffer.getChannelData(0),
-				rightChannel = e.outputBuffer.getChannelData(1),
-				i,
-				nextValue;
-			for (i = 0; i < leftChannel.length; i = i + 1) {
-				nextValue = next();
-				leftChannel[i] = nextValue;
-				rightChannel[i] = nextValue;
+			var channel = e.outputBuffer.getChannelData(0),
+				i;
+			for (i = 0; i < channel.length; i = i + 1) {
+				channel[i] = next();
 			}
 		},
 		createSineNode = function () {
