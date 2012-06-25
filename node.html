@@ -27,15 +27,15 @@
 			node.onaudioprocess = function (e) {
 				var inputs = [],
 					outputs = [],
-					i,
-					j;
-				for (i = 0; i < bufferSize; i = i + 1) {
-					for (j = 0; j < numberOfInputs; j = j + 1) {
-						inputs[j] = e.inputBuffer.getChannelData(j)[i];
+					bit,
+					channel;
+				for (bit = 0; bit < bufferSize; bit = bit + 1) {
+					for (channel = 0; channel < numberOfInputs; channel = channel + 1) {
+						inputs[channel] = e.inputBuffer.getChannelData(channel)[bit];
 					}
 					outputs = next(inputs);
-					for (j = 0; j < numberOfOutputs; j = j + 1) {
-						e.outputBuffer.getChannelData(j)[i] = outputs[j];
+					for (channel = 0; channel < numberOfOutputs; channel = channel + 1) {
+						e.outputBuffer.getChannelData(channel)[bit] = outputs[channel];
 					}
 				}
 			};
