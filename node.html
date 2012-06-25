@@ -16,14 +16,14 @@
 		generateSine = function (index, inputs) {
 			if(index % 1000 == 0) console.log(inputs);
 			var amplitude = inputs[0],
-				frequency = inputs[1],
+				frequency = 440,//inputs[1],
 				returnValue = Math.sin(2 * Math.PI * index * frequency / context.sampleRate) * amplitude;
 			return [returnValue];
 		},
 		createJavaScriptNode = function (numberOfInputs, numberOfOutputs, next) {
 			var bufferSize = 2048,
 				index = 0,
-				node = context.createJavaScriptNode(bufferSize, 1, 1);
+				node = context.createJavaScriptNode(bufferSize, numberOfInputs, numberOfOutputs);
 			node.onaudioprocess = function (e) {
 				var inputs = [],
 					outputs = [],
@@ -53,23 +53,18 @@
 				mergerNode = context.createChannelMerger(),
 				sineNode = createJavaScriptNode(2, 1, generateSine);
 			amplitudeNode.connect(mergerNode, 0, 0);
-			frequencyNode.connect(mergerNode, 0, 1);
+			//frequencyNode.connect(mergerNode, 0, 1);
 			mergerNode.connect(sineNode, 0, 0);
 			return sineNode;
 		};
 
 	playButton.addEventListener("click", function() {
-		var sineNode = createSineNode(0.5, 440),
-			sineNode2 = createSineNode(0.5, 330),
-			mergerNode = context.createChannelMerger();
+		var sineNode = createSineNode(0.5, 440);
 
-		sineNode.connect(mergerNode, 0, 0);
-		sineNode2.connect(mergerNode, 0, 1);
-
-		mergerNode.connect(context.destination);
+		sineNode.connect(context.destination);
 
 		setTimeout(function () {
-			mergerNode.disconnect();
+			sineNode.disconnect();
 		}, 2000);
 	});
 
