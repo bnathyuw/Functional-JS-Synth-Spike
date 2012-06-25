@@ -13,12 +13,10 @@
 
 	var context = new webkitAudioContext(),
 		playButton = document.getElementById("play"),
-		generateSine = (function () {
-			return function (inputs, index) {
-				var returnValue = Math.sin(2 * Math.PI * index * 440 / context.sampleRate);
-				return [returnValue];
-			};
-		})(),
+		generateSine = function (inputs, index) {
+			var returnValue = Math.sin(2 * Math.PI * index * 440 / context.sampleRate);
+			return [returnValue];
+		},
 		createJavaScriptNode = function (numberOfInputs, numberOfOutputs, next) {
 			var bufferSize = 2048,
 				index = 0,
