@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+	<title>Functional JS Synth Spike</title>
+</head>
+<body>
+	<header>	
+	<h1>Function JS Synth Spike</h1>
+	</header>
+	<input type="button" value="play" id="play" />
+<script>
+(function() {
+
+	var context = new webkitAudioContext(),
+		getSine = function (index) {
+			return Math.sin(2 * Math.PI * index);
+		},
+		incrementIndex = function (index, frequency) {
+			return index + frequency / context.sampleRate;
+		},
+		makeNext = function (waveFunction, frequency) {
+			var index = 0;
+			return function () {
+				var returnValue = waveFunction(index);
+				index = incrementIndex(index, frequency);
+				return returnValue;
+			}
+		},
+		makeFillChannelData = function (next) {
+			return function (e) {
+				var leftChannel = e.outputBuffer.getChannelData(0),
+					rightChannel = e.outputBuffer.getChannelData(1),
+					i,
+					nextValue;
+				for (i = 0; i < leftChannel.length; i = i + 1) {
+					nextValue = next();
+					leftChannel[i] = nextValue;
+					rightChannel[i] = nextValue;
+				}
+			};
+		},
+		playButton = document.getElementById("play"),
+		makeTone = function (waveFunction, frequency) {
+			var node = context.createJavaScriptNode(2048, 0, 2),
+				next = makeNext(waveFunction, frequency),
+				fillChannelData = makeFillChannelData(next),
+				play = function () {
+					node.connect(context.destination);
+					return stop;
+				},
+				stop = function () {
+					node.disconnect();
+				};
+
+			node.onaudioprocess = fillChannelData;
+
+			return play;
+		},
+		makeSineTone = function () {
+			return makeTone(getSine, 440);
+		};
+
+	playButton.addEventListener("click", function() {
+		var tonePlayer = makeSineTone(),
+			stop = tonePlayer();
+		setTimeout(stop, 2000);
+	});
+
+})();
+</script>
+</body>
+</html>
