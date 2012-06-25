@@ -22,7 +22,7 @@
 			};
 		})(),
 		createJavaScriptNode = function (numberOfInputs, numberOfOutputs, next) {
-			var node = context.createJavaScriptNode(2048, 0, 2);
+			var node = context.createJavaScriptNode(2048, numberOfInputs, numberOfOutputs);
 			node.onaudioprocess = function (e) {
 				var channel = e.outputBuffer.getChannelData(0),
 					i;
