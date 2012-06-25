@@ -14,13 +14,16 @@
 	var context = new webkitAudioContext(),
 		playButton = document.getElementById("play"),
 		generateSine = function (index, inputs) {
-			var returnValue = Math.sin(2 * Math.PI * index * 440 / context.sampleRate);
+			if(index % 1000 == 0) console.log(inputs);
+			var amplitude = inputs[0],
+				frequency = inputs[1],
+				returnValue = Math.sin(2 * Math.PI * index * frequency / context.sampleRate) * amplitude;
 			return [returnValue];
 		},
 		createJavaScriptNode = function (numberOfInputs, numberOfOutputs, next) {
 			var bufferSize = 2048,
 				index = 0,
-				node = context.createJavaScriptNode(bufferSize, numberOfInputs, numberOfOutputs);
+				node = context.createJavaScriptNode(bufferSize, 1, 1);
 			node.onaudioprocess = function (e) {
 				var inputs = [],
 					outputs = [],
@@ -39,17 +42,34 @@
 			};
 			return node;
 		},
-		createSineNode = function () {
-			return createJavaScriptNode(0, 1, generateSine);
+		createConstantNode = function (value) {
+			return value.constructor.name === "JavaScriptAudioNode" ? value : createJavaScriptNode(0, 1, function (index, inputs) {
+				return [value];
+			});
+		},
+		createSineNode = function (amplitude, frequency) {
+			var amplitudeNode = createConstantNode(amplitude),
+				frequencyNode = createConstantNode(frequency),
+				mergerNode = context.createChannelMerger(),
+				sineNode = createJavaScriptNode(2, 1, generateSine);
+			amplitudeNode.connect(mergerNode, 0, 0);
+			frequencyNode.connect(mergerNode, 0, 1);
+			mergerNode.connect(sineNode, 0, 0);
+			return sineNode;
 		};
 
 	playButton.addEventListener("click", function() {
-		var sineNode = createSineNode();
+		var sineNode = createSineNode(0.5, 440),
+			sineNode2 = createSineNode(0.5, 330),
+			mergerNode = context.createChannelMerger();
 
-		sineNode.connect(context.destination);
+		sineNode.connect(mergerNode, 0, 0);
+		sineNode2.connect(mergerNode, 0, 1);
+
+		mergerNode.connect(context.destination);
 
 		setTimeout(function () {
-			sineNode.disconnect();
+			mergerNode.disconnect();
 		}, 2000);
 	});
 
