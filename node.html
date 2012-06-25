@@ -12,58 +12,38 @@
 (function() {
 
 	var context = new webkitAudioContext(),
-		getSine = function (index) {
-			return Math.sin(2 * Math.PI * index);
+		playButton = document.getElementById("play"),
+		index = 0,
+		next = function () {
+			var returnValue = Math.sin(2 * Math.PI * index);
+			index = index + 440 / context.sampleRate;
+			return returnValue;
 		},
-		incrementIndex = function (index, frequency) {
-			return index + frequency / context.sampleRate;
-		},
-		makeNext = function (waveFunction, frequency) {
-			var index = 0;
-			return function () {
-				var returnValue = waveFunction(index);
-				index = incrementIndex(index, frequency);
-				return returnValue;
+		fillChannelData = function (e) {
+			var leftChannel = e.outputBuffer.getChannelData(0),
+				rightChannel = e.outputBuffer.getChannelData(1),
+				i,
+				nextValue;
+			for (i = 0; i < leftChannel.length; i = i + 1) {
+				nextValue = next();
+				leftChannel[i] = nextValue;
+				rightChannel[i] = nextValue;
 			}
 		},
-		makeFillChannelData = function (next) {
-			return function (e) {
-				var leftChannel = e.outputBuffer.getChannelData(0),
-					rightChannel = e.outputBuffer.getChannelData(1),
-					i,
-					nextValue;
-				for (i = 0; i < leftChannel.length; i = i + 1) {
-					nextValue = next();
-					leftChannel[i] = nextValue;
-					rightChannel[i] = nextValue;
-				}
-			};
-		},
-		playButton = document.getElementById("play"),
-		makeTone = function (waveFunction, frequency) {
-			var node = context.createJavaScriptNode(2048, 0, 2),
-				next = makeNext(waveFunction, frequency),
-				fillChannelData = makeFillChannelData(next),
-				play = function () {
-					node.connect(context.destination);
-					return stop;
-				},
-				stop = function () {
-					node.disconnect();
-				};
-
+		createSineNode = function () {
+			var node = context.createJavaScriptNode(2048, 0, 2);
 			node.onaudioprocess = fillChannelData;
-
-			return play;
-		},
-		makeSineTone = function () {
-			return makeTone(getSine, 440);
+			return node;
 		};
 
 	playButton.addEventListener("click", function() {
-		var tonePlayer = makeSineTone(),
-			stop = tonePlayer();
-		setTimeout(stop, 2000);
+		var sineNode = createSineNode();
+
+		sineNode.connect(context.destination);
+
+		setTimeout(function () {
+			sineNode.disconnect();
+		}, 2000);
 	});
 
 })();
