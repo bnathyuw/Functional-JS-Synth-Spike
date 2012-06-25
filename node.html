@@ -22,12 +22,16 @@
 			};
 		})(),
 		createJavaScriptNode = function (numberOfInputs, numberOfOutputs, next) {
-			var node = context.createJavaScriptNode(2048, numberOfInputs, numberOfOutputs);
+			var bufferSize = 2048,
+				node = context.createJavaScriptNode(bufferSize, numberOfInputs, numberOfOutputs);
 			node.onaudioprocess = function (e) {
-				var channel = e.outputBuffer.getChannelData(0),
+				var outputs = [],
 					i;
-				for (i = 0; i < channel.length; i = i + 1) {
-					channel[i] = next();
+				for (i = 0; i < numberOfOutputs; i = i + 1) {
+					outputs[i] = e.outputBuffer.getChannelData(i);
+				}
+				for (i = 0; i < bufferSize; i = i + 1) {
+					outputs[0][i] = next();
 				}
 			};
 			return node;
