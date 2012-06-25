@@ -14,15 +14,14 @@
 	var context = new webkitAudioContext(),
 		playButton = document.getElementById("play"),
 		generateSine = (function () {
-			var index = 0;
-			return function (inputs) {
-				var returnValue = Math.sin(2 * Math.PI * index);
-				index = index + 440 / context.sampleRate;
+			return function (inputs, index) {
+				var returnValue = Math.sin(2 * Math.PI * index * 440 / context.sampleRate);
 				return [returnValue];
 			};
 		})(),
 		createJavaScriptNode = function (numberOfInputs, numberOfOutputs, next) {
 			var bufferSize = 2048,
+				index = 0,
 				node = context.createJavaScriptNode(bufferSize, numberOfInputs, numberOfOutputs);
 			node.onaudioprocess = function (e) {
 				var inputs = [],
@@ -33,10 +32,11 @@
 					for (channel = 0; channel < numberOfInputs; channel = channel + 1) {
 						inputs[channel] = e.inputBuffer.getChannelData(channel)[bit];
 					}
-					outputs = next(inputs);
+					outputs = next(inputs, index);
 					for (channel = 0; channel < numberOfOutputs; channel = channel + 1) {
 						e.outputBuffer.getChannelData(channel)[bit] = outputs[channel];
 					}
+					index = index + 1;
 				}
 			};
 			return node;
